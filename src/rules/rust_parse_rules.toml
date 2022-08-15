@@ -1,0 +1,53 @@
+# Rust解析规则
+# 1. (use .*?;): 获取use 开头 ，;结尾，最小结果
+# 2. (?:.|\n)：同时匹配换行
+# 4. (pub(\((crate|super)\)|) |): 匹配pub 、pub(crate) 、pub(super) 、none
+[module]
+# mod有3种情况
+mod_regex = "((pub |)mod (?:.|\n)*?;)" #  mod tests;pub mod weights;
+# 1. 将可见mod再声明一次，"复制"到当前文件: ((pub(\((crate|super)\)|) |)mod .*?;)
+declare_mod_regex = "((pub(\\((crate|super)\\)|) |)mod .*?;)"
+# 2. 在当前文件详细定义: ((pub(\((crate|super)\)|) |)mod (.|\n)*?\n}), 但是如果在注释中出现，就会错位
+define_mod_regex = "((pub(\\((crate|super)\\)|) |)mod (.|\n)*?\n})"
+# 3. 嵌套mod: (\t(pub(\((crate|super)\)|) |)mod (.|\n)*?\n\t})
+# 注意：一个\t代表一级嵌套，还有二级嵌套、三级嵌套等
+nest_mod_regex = "(\t(pub(\\((crate|super)\\)|) |)mod (.|\n)*?\n\t})"
+# 考虑到解析时是整个文件作为一个字符串，所以每一行的前面都是换行符\n
+use_regex = "\n((pub |)use (?:.|\n)*?;)" #  pub use weights::WeightInfo;
+
+[types]
+trait_regex = "((pub |)trait (?:.|\n)*?){"
+# fn关键字有很多使用情况：
+# 1. 是否可见：pub
+# 2. 可见范围：super、crate
+# 3. 使用在装饰器中：#[pallet::getter(fn heartbeat_after)]
+function_interface_regex = "((pub(\\((crate|super)\\)|) |)fn (?:.|\n)*?)((?: |\n){|\\)\\])"
+# struct识别：
+# 1. 是否可见：pub
+# 2. 可见范围：super\crate
+# 3. ' {'或者"\n{"(格式换行)
+# pub struct BoundedOpaqueNetworkState<PeerIdEncodingLimit, MultiAddrEncodingLimit, AddressesLimit>
+# where
+#     PeerIdEncodingLimit: Get<u32>,
+#     MultiAddrEncodingLimit: Get<u32>,
+#     AddressesLimit: Get<u32>,
+# {
+struct_regex = "\n((pub(\\((crate|super)\\)|) |)struct (?:.|\n)*?)((?: |\n){|;)"
+# 这会包含3种情况：
+# 1. 正常以impl开头的内容: "\n(impl( |<)(?:.|\n)*?)((?: |\n){|\)\])"
+normal_impl_regex = "\n(impl( |<)(?:.|\n)*?)((?: |\n){)"
+# 2. 入参
+#     2.1 ".*?: (.*?impl (?:.|\n)*?)>,":
+#     fn with_heartbeat_lock<R>(
+#		authority_index: u32,
+#		session_index: SessionIndex,
+#		now: T::BlockNumber,
+#		f: impl FnOnce() -> OffchainResult<T, R>,
+#	   ) -> OffchainResult<T, R> {
+input_impl_regex = ".*?: (.*?impl (?:.|\n)*?)>,"
+# 3. 返回参数： -> (.*?impl (?:.|\n)*?)((?: |\n){|\)\])
+#     3.1 fn local_authority_keys() -> impl Iterator<Item = (u32, T::AuthorityId)> {
+#       "-> (impl (?:.|\n)*?)((?: |\n){|\)\])"
+#     3.2 -> OffchainResult<T, impl Iterator<Item = OffchainResult<T, ()>>> {
+#       ", (impl (?:.|\n)*?)((?: |\n){|\)\])"
+return_impl_regex = "(.*?impl (?:.|\n)*?)((?: |\n){)"

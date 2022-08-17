@@ -3,6 +3,13 @@
 # 2. (?:.|\n)：同时匹配换行
 # 4. (pub(\((crate|super)\)|) |): 匹配pub 、pub(crate) 、pub(super) 、none
 [explain]
+# cargo配置说明
+workspace = "工作区配置"
+package = "crate详情"
+dependencies = "crate运行依赖"
+dev-dependencies = 'crate开发依赖(仅测试时需要，如基准测试、单元测试)[参考](https://rustwiki.org/zh-CN/rust-by-example/testing/dev_dependencies.html)'
+features = "条件编译与可选依赖关系配置，命令行中使用--features启用"
+profile = "发布配置：dev、release、test、bench"
 #mod_regex = "模块总览"
 declare_mod_regex = "再声明复制模块(默认为Cargo.toml同级目录src下同名rs文件)"
 define_mod_regex_root = "定义根模块"
@@ -10,6 +17,14 @@ define_mod_regex_secondary = "定义二级嵌套模块"
 define_mod_regex_third = "定义三级嵌套模块"
 nest_mod_regex = "嵌套模块"
 use_regex = "引入第三方（简化引用路径）"
+# ------------------------------ 类型定义
+trait_regex = "trait定义"
+function_interface_regex = "函数、方法、接口定义"
+struct_regex = "结构体定义"
+normal_impl_regex = '实现定义'
+input_impl_regex = '入参实现'
+output_impl_regex = "出参实现"
+
 [module]
 # mod有两种种情况
 mod_regex = "((pub |)mod (?:.|\n)*?;)" #  mod tests;pub mod weights;

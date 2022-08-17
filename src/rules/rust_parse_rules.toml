@@ -2,16 +2,23 @@
 # 1. (use .*?;): 获取use 开头 ，;结尾，最小结果
 # 2. (?:.|\n)：同时匹配换行
 # 4. (pub(\((crate|super)\)|) |): 匹配pub 、pub(crate) 、pub(super) 、none
+[explain]
+#mod_regex = "模块总览"
+declare_mod_regex = "再声明复制模块(默认为Cargo.toml同级目录src下同名rs文件)"
+define_mod_regex_root = "定义根模块"
+define_mod_regex_secondary = "定义二级嵌套模块"
+define_mod_regex_third = "定义三级嵌套模块"
+nest_mod_regex = "嵌套模块"
+use_regex = "引入第三方（简化引用路径）"
 [module]
-# mod有3种情况
+# mod有两种种情况
 mod_regex = "((pub |)mod (?:.|\n)*?;)" #  mod tests;pub mod weights;
 # 1. 将可见mod再声明一次，"复制"到当前文件: ((pub(\((crate|super)\)|) |)mod .*?;)
-declare_mod_regex = "((pub(\\((crate|super)\\)|) |)mod .*?;)"
+declare_mod_regex = "\n((pub(\\((crate|super)\\)|) |)mod .*?;)"
 # 2. 在当前文件详细定义: ((pub(\((crate|super)\)|) |)mod (.|\n)*?\n}), 但是如果在注释中出现，就会错位
-define_mod_regex = "((pub(\\((crate|super)\\)|) |)mod (.|\n)*?\n})"
-# 3. 嵌套mod: (\t(pub(\((crate|super)\)|) |)mod (.|\n)*?\n\t})
-# 注意：一个\t代表一级嵌套，还有二级嵌套、三级嵌套等
-nest_mod_regex = "(\t(pub(\\((crate|super)\\)|) |)mod (.|\n)*?\n\t})"
+define_mod_regex_root = "\n((pub(\\((crate|super)\\)|) |)mod .*?){"
+define_mod_regex_secondary = "\t((pub(\\((crate|super)\\)|) |)mod .*?){"
+define_mod_regex_third = "\t\t((pub(\\((crate|super)\\)|) |)mod .*?){"
 # 考虑到解析时是整个文件作为一个字符串，所以每一行的前面都是换行符\n
 use_regex = "\n((pub |)use (?:.|\n)*?;)" #  pub use weights::WeightInfo;
 

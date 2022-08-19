@@ -34,6 +34,8 @@ declare_mod_regex = "\n((pub(\\((crate|super)\\)|) |)mod .*?;)"
 define_mod_regex_root = "\n((pub(\\((crate|super)\\)|) |)mod .*?){"
 define_mod_regex_secondary = "\t((pub(\\((crate|super)\\)|) |)mod .*?){"
 define_mod_regex_third = "\t\t((pub(\\((crate|super)\\)|) |)mod .*?){"
+
+[use]
 # 考虑到解析时是整个文件作为一个字符串，所以每一行的前面都是换行符\n
 use_regex = "\n((pub |)use (?:.|\n)*?;)" #  pub use weights::WeightInfo;
 

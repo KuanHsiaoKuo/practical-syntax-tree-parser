@@ -56,7 +56,12 @@ find . -name 'mod.rs'
 
 ## Rust篇
 
-### 单文件解析
+### 单文件解析(main/lib/mod同名文件)
+
+#### mod同名文件
+
+1. lib/main中：同级目录 > mod同名文件
+2. 非lib/main中：同级目录 > 同名目录 > mod同名文件
 
 ### crate解析
 

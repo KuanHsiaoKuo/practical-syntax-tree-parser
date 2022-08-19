@@ -5,7 +5,6 @@
 import sys
 import toml
 import re
-import json
 
 
 class PracticalSyntaxTreeParser:
@@ -77,17 +76,17 @@ class PracticalSyntaxTreeParser:
                 if result:
                     print(f"\n## {explain_name}")
                     # 为了打印出正则表达式中的转义符号：\n \ \t
-                    print(reg_stat.encode("unicode_escape").decode('utf-8'))
+                    print(f"> {reg_stat}".encode("unicode_escape").decode('utf-8'))
                     for index, item in enumerate(result):
-                        print(f"\t{index + 1}. {item[0]}")
+                        print(f"{index + 1}. {item[0]}")
 
 
 if __name__ == "__main__":
     main_path = '../test_codes/network/src/lib.rs'
     mod_define_file_path = '../test_codes/executive/src/lib.rs'
     cargo_file_path = '../test_codes/cargo_collection/substrate_main_cargo.toml'
-
-    pstp = PracticalSyntaxTreeParser('rust', 'cargo')
-    # pstp.main_parse(main_path)
+    test_language, test_parse_type = 'rust', 'single'
+    pstp = PracticalSyntaxTreeParser(test_language, test_parse_type)
+    pstp.parse(main_path)
     # pstp.parse(mod_define_file_path)
-    pstp.parse(cargo_file_path)
+    # pstp.parse(cargo_file_path)

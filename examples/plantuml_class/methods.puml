@@ -1,0 +1,26 @@
+@startuml
+Object <|-- ArrayList
+
+Object : equals()
+ArrayList : Object[] elementData
+ArrayList : size()
+class Foo{
+  String data
+  void methods()
+}
+
+class Flight {
+   flightNumber : Integer
+   departureTime : Date
+}
+class Bar{
+  {field} A field (despite parentheses)
+  {method} Some method
+}
+
+class Def{
+  {static} String id
+  {abstract} void methods()
+}
+@enduml
+

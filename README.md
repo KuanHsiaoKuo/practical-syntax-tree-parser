@@ -17,3 +17,16 @@
 ## 参考书籍
 
 - [(MN)深入浅出vuejs](marginnote3app://note/4ADF00E5-AACB-4D26-8BC0-9F84E4B168C8)
+
+## 使用plantuml的class语法
+
+- [Class Diagram syntax and features](https://plantuml.com/en/class-diagram)
+
+## 解析出来的数据导出为toml文件
+
+```python
+import toml
+
+with open('target_file_path', 'w') as f:
+    toml.dump(toml_dict, f)
+```

@@ -1,0 +1,107 @@
+@startuml
+'当前主体crate
+package executive/lib.rs as lib <<Frame>> #DDDDDD {
+json use_table {
+    "codec": ["Codec", "Encode"],
+     "frame_support": {
+          "dispatch": ["PostDispatchInfo"],
+          "traits": ["EnsureInherentsAreFirst", "ExecuteBlock", "OffchainWorker", "OnFinalize", "OnIdle", "OnInitialize", "OnRuntimeUpgrade"],
+          "weights": ["DispatchClass", "DispatchInfo", "GetDispatchInfo"]
+     },
+     "sp_runtime": {
+          "generic": ["Digest"],
+          "traits": ["self", "Applyable", "CheckEqual", "Checkable", "Dispatchable", "Header", "NumberFor", "One", "Saturating", "ValidateUnsigned", "Zero"],
+          "transaction_validity": ["TransactionSource", "TransactionValidity"],
+          "crate": ["ApplyExtrinsicResult"]
+     },
+     "sp_std": {
+          "marker": ["PhantomData"],
+          "prelude": ["*"]
+     }
+}
+}
+'scale 750 width
+package cargo.toml <<Node>> {
+'crate.io的crate
+package codec as crate1 <<cloud>> {
+    json crate1_crate_info {
+       "package": "parity-scale-codec",
+       "version":"3.0.0",
+       "default-features":"false",
+       "features": ["derive"]
+    }
+    class Encode
+}
+package scale-info  as crate2 <<cloud>> {
+json crate2_crate_info {
+   "version":"2.1.1",
+   "default-features":"false",
+   "features": ["derive"]
+}
+}
+package frame-support as crate3 <<Folder>>{
+json crate3_crate_info {
+   "version":"4.0.0-dev",
+   "default-features":"false",
+   "path": "../support"
+}
+
+}
+package frame-system as crate4 <<Folder>>{
+json crate4_crate_info {
+   "version":"4.0.0-dev",
+   "default-features":"false",
+   "path": "../system"
+}
+}
+package sp-core  as crate5 <<Folder>> {
+json crate5_crate_info {
+   "version":"6.0.0",
+   "default-features":"false",
+   "path": "../../primitives/core"
+}
+}
+package sp-io as crate6 <<Folder>> {
+json crate6_crate_info {
+   "version":"6.0.0",
+   "default-features":"false",
+   "path": "../../primitives/io"
+}
+}
+package sp-runtime as crate7 <<Folder>>{
+json crate7_crate_info {
+   "version":"6.0.0",
+   "default-features":"false",
+   "path": "../../primitives/runtime"
+}
+}
+package sp-std as crate8 <<Folder>> {
+json crate8_crate_info {
+   "version":"4.0.0",
+   "default-features":"false",
+   "path": "../../primitives/std"
+}
+}
+package sp-tracing as crate9 <<Folder>>{
+json crate9_crate_info {
+   "version":"5.0.0",
+   "default-features":"false",
+   "path": "../../primitives/tracing"
+}
+}
+
+}
+lib -[hidden]down- cargo.toml
+crate1 -[hidden]down- crate4
+crate2 -[hidden]down- crate5
+crate3 -[hidden]down- crate6
+crate4 -[hidden]down- crate7
+crate5 -[hidden]down- crate8
+crate6 -[hidden]down- crate9
+
+crate3_crate_info -[hidden]down- crate3_mod1
+crate3_mod1 -[hidden]down- crate3_mod2
+crate3_mod2 -[hidden]down- crate3_mod3
+Codec *-- crate1
+Encode *-- crate1
+@endmindmap

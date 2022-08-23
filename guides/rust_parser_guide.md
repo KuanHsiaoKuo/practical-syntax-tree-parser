@@ -204,7 +204,7 @@ Rust 中的模块只不过是零个或多个事物的容器。这是一种逻辑
 
 > [本地批注地址](x-devonthink-item://0FB4BFD2-C96E-4DFA-A8E9-09BFBAD1BBF9)
 
-#### package、crate、mod
+#### package、crate、mod、use
 
 1. package: cargo 创建一个新项目时，默认就创建了一个package
 2. crate: 默认由一个Cargo.toml文件对应
@@ -218,6 +218,71 @@ Rust 中的模块只不过是零个或多个事物的容器。这是一种逻辑
 - 1个Crate里，可以创建0或多个mod(后面还会详细讲mod)
 
 > 1个package里，允许有1个library crate和多个binary crate
+
+4.mod还有一种重新确定隐私的作用
+> 比如mod同名目录下的模块，可以在mod同名文件中将子mod"复制"进来后，重新以mod的方式来被外部引入
+
+5. 下面以substrate的frame为例, 说明这种重新确定引入路径的方式：
+
+> 从这里可以看出，rust确实做到了内聚性，引用其他crate的时候，只需要看lib.rs提供了什么，不用关注对应底层源码到底怎么写的。
+
+- frame/executive/src/lib.rs
+
+```rust
+use frame_support::{
+    dispatch::PostDispatchInfo,
+    traits::{
+        EnsureInherentsAreFirst, ExecuteBlock, OffchainWorker, OnFinalize, OnIdle, OnInitialize,
+        OnRuntimeUpgrade,
+    },
+    weights::{DispatchClass, DispatchInfo, GetDispatchInfo},
+};
+```
+
+- frame/executive/Cargo.toml
+
+```toml
+frame-support = { version = "4.0.0-dev", default-features = false, path = "../support" }
+```
+
+- frame/support/src/lib.rs
+
+```rust
+pub mod traits;
+```
+
+- frame/support/src/traits.rs
+> 这里就将misc::ExecuteBlock等元素提升给traits。
+> 而且这种方式还可以有效指定哪些元素可以通过traits暴露出去
+```rust
+mod misc;
+
+pub use misc::{
+    defensive_prelude::{self, *},
+    Backing, ConstBool, ConstI128, ConstI16, ConstI32, ConstI64, ConstI8, ConstU128, ConstU16,
+    ConstU32, ConstU64, ConstU8, DefensiveSaturating, EnsureInherentsAreFirst, EqualPrivilegeOnly,
+    EstimateCallFee, ExecuteBlock, ExtrinsicCall, Get, GetBacking, GetDefault, HandleLifetime,
+    IsSubType, IsType, Len, OffchainWorker, OnKilledAccount, OnNewAccount, PreimageProvider,
+    PreimageRecipient, PrivilegeCmp, SameOrOther, Time, TryCollect, TryDrop, TypedGet, UnixTime,
+    WrapperKeepOpaque, WrapperOpaque,
+};
+```
+
+- frame/support/src/traits/misc.rs
+
+```rust
+pub trait ExecuteBlock<Block: BlockT> {
+    /// Execute the given `block`.
+    ///
+    /// This will execute all extrinsics in the block and check that the resulting header is
+    /// correct.
+    ///
+    /// # Panic
+    ///
+    /// Panics when an extrinsics panics or the resulting header doesn't match the expected header.
+    fn execute_block(block: Block);
+}
+```
 
 #### 入口函数：fn main() {...}
 

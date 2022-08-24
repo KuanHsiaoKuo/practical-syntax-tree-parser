@@ -67,6 +67,9 @@
 
 ## 核心思路
 
+- 所有权、借用、切片
+- 泛型、trait、生命周期
+
 ### 从静态语言开始
 
 每个方法都需要指定特定类型
@@ -995,10 +998,42 @@ impl Summary for NewsArticle {
 #### 示例一：实现trait中定义的方法
 
 - [Rust之PhantomData - 简书](https://www.jianshu.com/p/0d60c148c0c0)
+- [`type` alias vs `use` - help - The Rust Programming Language Forum](https://users.rust-lang.org/t/type-alias-vs-use/7486)
+- where与impl语法的对比：
+  - [where可以用于更复杂的情况, 如关联类型](marginnote3app://note/8974BCC4-5036-4051-913A-287D6C6A56A5)
+  - [关联类型只能使用where子句](marginnote3app://note/E1B86A91-9D49-4CC5-9344-CAEB316EAC41)
 
 > substrate/frame/executive/src/lib.rs
 
+下列trait限定的意思：
+
+1. 为Executive结构体实现ExecuteBlock这个trait的方法
+2. for Executive<...>：Executive本身是个结构体，用到了这些类型
+3. impl<...>：这些类型分别有哪些trait限定，要用到关联类型限定的，就放在where子句中
+4. where子句：主要先约束好关联类型Block::Extrinsic，给后面的使用
+5. 总结impl与where子句：这里将简单情况放在impl中，将复杂的关联类型限定放在where子句中。
+
 ```rust
+/// Something that can execute a given block.
+///
+/// Executing a block means that all extrinsics in a given block will be executed and the resulting
+/// header will be checked against the header of the given block.
+pub trait ExecuteBlock<Block: BlockT> {
+	/// Execute the given `block`.
+	///
+	/// This will execute all extrinsics in the block and check that the resulting header is
+	/// correct.
+	///
+	/// # Panic
+	///
+	/// Panics when an extrinsics panics or the resulting header doesn't match the expected header.
+	fn execute_block(block: Block);
+}
+
+pub type CheckedOf<E, C> = <E as Checkable<C>>::Checked;
+pub type CallOf<E, C> = <CheckedOf<E, C> as Applyable>::Call;
+pub type OriginOf<E, C> = <CallOf<E, C> as Dispatchable>::Origin;
+
 pub struct Executive<
 	System,
 	Block,
@@ -1034,8 +1069,7 @@ for Executive<System, Block, Context, UnsignedValidator, AllPalletsWithSystem, C
     where
         Block::Extrinsic: Checkable<Context> + Codec,
         CheckedOf<Block::Extrinsic, Context>: Applyable + GetDispatchInfo,
-        CallOf<Block::Extrinsic, Context>:
-        Dispatchable<Info=DispatchInfo, PostInfo=PostDispatchInfo>,
+        CallOf<Block::Extrinsic, Context>: Dispatchable<Info=DispatchInfo, PostInfo=PostDispatchInfo>,
         OriginOf<Block::Extrinsic, Context>: From<Option<System::AccountId>>,
         UnsignedValidator: ValidateUnsigned<Call=CallOf<Block::Extrinsic, Context>>,
 {
@@ -1120,3 +1154,10 @@ other at runtime if they share certain characteristics.
 Rust instead uses generics to abstract over different possible types and trait bounds to impose constraints on what
 those types must provide. This is sometimes called **bounded parametric polymorphism** .
 
+## 六、回顾trait，联系上生命周期
+
+- [rust权威指南-trait定义共享行为](marginnote3app://note/133A41C4-ADA0-4101-B280-BCD4D3DB8014)
+
+借助于trait和trait约束,我们可以在使用泛型参数来消除重复代码的同时,向编译器指明自己希望泛型拥有的功能。而编译器则可以利用这些trait约束信息来确保代码中使用的具体类型提供了正确的行为。在动态语言中,尝试调用一个类型没有实现的方法会导致在运行时出现错误。但是,Rust将这些错误出现的时期转移到了编译期,并迫使我们在运行代码之前修复问题。我们无须编写那些用于在运行时检查行为的代码,因为这些工作已经在编译期完成了。这一机制在保留泛型灵活性的同时提升了代码的性能。
+
+生命周期是另外一种你已经接触过的泛型。普通泛型可以确保类型拥有期望的行为,与之不同的是,生命周期能够确保引用在我们的使用过程中一直有效

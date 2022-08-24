@@ -995,6 +995,25 @@ impl Summary for NewsArticle {
 > substrate/frame/executive/src/lib.rs
 
 ```rust
+pub struct Executive<
+	System,
+	Block,
+	Context,
+	UnsignedValidator,
+	AllPalletsWithSystem,
+	OnRuntimeUpgrade = (),
+>(
+	PhantomData<(
+		System,
+		Block,
+		Context,
+		UnsignedValidator,
+		AllPalletsWithSystem,
+		OnRuntimeUpgrade,
+	)>,
+);
+
+
 impl<
     System: frame_system::Config + EnsureInherentsAreFirst<Block>,
     Block: traits::Block<Header=System::Header, Hash=System::Hash>,

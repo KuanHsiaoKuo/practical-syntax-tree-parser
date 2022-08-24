@@ -620,6 +620,8 @@ impl<T> Point<T> {
 
 #### 示例一: 定义并实现许多方法
 
+- [Executive in frame_executive - Rust](https://paritytech.github.io/substrate/master/frame_executive/struct.Executive.html)
+
 > substrate/frame/executive/src/lib.rs
 
 ```rust
@@ -991,6 +993,8 @@ impl Summary for NewsArticle {
 ```
 
 #### 示例一：实现trait中定义的方法
+
+- [Rust之PhantomData - 简书](https://www.jianshu.com/p/0d60c148c0c0)
 
 > substrate/frame/executive/src/lib.rs
 
